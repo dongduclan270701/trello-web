@@ -1,0 +1,17 @@
+@import "_setting.scss";
+
+li {
+    list-style-type: none !important;
+    background-color: white;
+    padding: $gap;
+    &:not(:last-child) {
+        margin-bottom: $gap;
+    }
+    border-radius: $card_border_radius;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+    img {
+        display: block;
+        width: calc(100% + #{$gap} + #{$gap});
+        margin: -$gap 0 $gap (-$gap);
+    }
+}

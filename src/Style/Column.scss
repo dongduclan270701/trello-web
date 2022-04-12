@@ -1,0 +1,46 @@
+@import '_setting.scss';
+.column {
+    flex: 0 0 auto;
+    width: 300px;
+    height: calc(100% - #{$gap});
+    &:not(:first-child) {
+        margin-left: $gap;
+    }
+    ul {
+        margin: 0;
+        max-height: calc(100% - #{$colums_header_color} - #{$colums_footer_color});
+        overflow-y: auto;
+        &::-webkit-scrollbar {
+            -webkit-appearance: none;
+        }
+        &::-webkit-scrollbar:horizontal {
+            width: 11px;
+        }
+        &::-webkit-scrollbar-thumb:vertical {
+            background-color: $commom_element_bg;
+            border-radius: 5px $list_bg_color solid;
+        }
+        
+    }
+    > * {
+        background-color: $list_bg_color;
+        color: $text_color;
+        padding: 0 8px;
+    }
+    header {
+        padding-left: 15px;
+        height: $colums_header_color;
+        line-height: $colums_header_color;
+        font-size: bold;
+        border-top-left-radius: $border_radius;
+        border-top-right-radius: $border_radius;
+    }
+    footer {
+        padding-left: 10px;
+        height: $colums_footer_color;
+        line-height: $colums_footer_color;
+        font-size: bold;
+        border-bottom-left-radius: $border_radius;
+        border-bottom-right-radius: $border_radius;
+    }
+}
