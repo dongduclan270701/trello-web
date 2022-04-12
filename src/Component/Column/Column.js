@@ -1,35 +1,21 @@
 import React, { Component } from 'react';
 
 import 'Style/Column.scss'
-import Task from 'Component/Task/Task';
+import Card from 'Component/Card/Card';
+import { mapOrder } from 'utils/sorts';
 
 class Column extends Component {
     render() {
+        const {column} = this.props;
+        const cards = mapOrder(column.cards, column.cardOrder, 'id');
         return (
             <div className="column">
                 <header>
-                    Brainstorm
+                    {column.title}
                 </header>
                 <ul>
-                    <Task/>
-                <li>
-                    Title : KassDev
-                </li>
-                <li>
-                    Title : KassDev
-                </li>
-                <li>
-                    Title : KassDev
-                </li>
-                <li>
-                    Title : KassDev
-                </li>
-                <li>
-                    Title : KassDev
-                </li>
-                <li>
-                    Title : KassDev
-                </li>
+                    {cards.map((card,index)=><Card key={index} card={card}/>)}
+                    
                 </ul>
                 <footer>
                     Add another card
