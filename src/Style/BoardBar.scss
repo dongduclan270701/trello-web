@@ -1,9 +1,9 @@
 @import '_setting.scss';
 .navbar {
+    height: $navboard-height;
     padding-left: $gap;
     display: flex;
     align-items: center;
-    
     &.board {
         font-size: 1.1rem;
     }
