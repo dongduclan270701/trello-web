@@ -1,14 +1,14 @@
 @import '_setting.scss';
+$column-height: calc(#{$board-content-height} - #{$gap + $gap});
 .column {
     flex: 0 0 auto;
     width: 300px;
-    height: calc(100% - #{$gap});
-    &:not(:first-child) {
-        margin-left: $gap;
-    }
-    ul {
+    height: $column-height;
+    margin-left: $gap;
+
+    .card-list {
         margin: 0;
-        max-height: calc(100% - #{$colums_header_color} - #{$colums_footer_color});
+        max-height: calc(#{$column-height} - #{$colums_header_color} - #{$colums_footer_color});
         overflow-y: auto;
         &::-webkit-scrollbar {
             -webkit-appearance: none;
@@ -20,20 +20,33 @@
             background-color: $commom_element_bg;
             border-radius: 5px $list_bg_color solid;
         }
-        
+        .card-ghost {
+            transition: transform 0.18s ease;
+            transform: rotateZ(5deg);
+        }
+        .card-ghost-drop {
+            transition: transform 0.18s ease-in-out;
+            transform: rotateZ(0deg);
+        }
+        .column-drop-preview{
+            background-color: rgba(150,150,200,0.1);
+            border: 1px dashed #abc;
+            margin:5px;
+        }
     }
     > * {
         background-color: $list_bg_color;
         color: $text_color;
         padding: 0 8px;
     }
-    header {
+    header.column-drag-handle {
         padding-left: 15px;
         height: $colums_header_color;
         line-height: $colums_header_color;
         font-size: bold;
         border-top-left-radius: $border_radius;
         border-top-right-radius: $border_radius;
+        cursor: pointer
     }
     footer {
         padding-left: 10px;
