@@ -1,9 +1,13 @@
-@import '_setting.scss';
+@import "_setting.scss";
 .board-columns {
     display: flex;
     height: $board-content-height;
     overflow-x: auto;
     overflow-y: hidden;
+    &::after {
+        content: "";
+        flex: 0 0 $gap;
+    }
     &::-webkit-scrollbar {
         -webkit-appearance: none;
     }
@@ -14,24 +18,62 @@
         background-color: $commom_element_bg;
         border-radius: 8px;
     }
-    .column-drop-preview{
-        background-color: rgba(150,150,200,0.1);
-            border: 1px dashed #abc;
-            margin:5px 45px 5px 5px;
+    .column-drop-preview {
+        background-color: rgba(150, 150, 200, 0.1);
+        border: 1px dashed #abc;
+        margin: 5px 45px 5px 5px;
     }
-    .add-new-column{
+    .add-new-column {
         width: 250px;
-        height: 32px;
+        max-width: 250px;
         line-height: 32px;
         padding: 4px 0 4px 15px;
         cursor: pointer;
-        color : white;
+        color: white;
         margin-left: $gap;
         font-size: 15px;
-        background-color: hsla(0, 0%, 100%, .24);
-        border-radius: $card_border_radius;
-        &:hover{
-            background-color: hsla(0, 0%, 100%, .34);
+        background-color: hsla(0, 0%, 100%, 0.24);
+        border-top-left-radius: $card_border_radius;
+        border-top-right-radius: $card_border_radius;
+
+        &:hover {
+            background-color: hsla(0, 0%, 100%, 0.34);
+        }
+    }
+
+    .enter-new-column {
+        width: 250px;
+        max-width: 250px;
+        background-color: hsla(0, 0%, 100%, 0.24);
+        line-height: 32px;
+        padding: 4px 10px;
+        margin-left: $gap;
+        border-bottom-left-radius: $card_border_radius;
+        border-bottom-right-radius: $card_border_radius;
+        // opacity: 0;
+        animation: pulse 0.6s;
+        @keyframes pulse {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+        
+        .input-enter-new-column {
+            margin: 5px 0;
+        }
+        .cancel-new-column {
+            margin-left: $gap;
+            i {
+                cursor: pointer;
+                font-size: 18px;
+                color: #ca1618;
+                &:hover {
+                    color: darken(#ca1618, 10);
+                }
+            }
         }
     }
 }
