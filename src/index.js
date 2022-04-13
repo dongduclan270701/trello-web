@@ -4,6 +4,8 @@ import App from './App'
 import reportWebVitals from './reportWebVitals'
 
 import { createRoot } from 'react-dom/client'
+import 'font-awesome/css/font-awesome.min.css'
+
 const container = document.getElementById('root')
 const root = createRoot(container)
 root.render(

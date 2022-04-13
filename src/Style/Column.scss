@@ -23,6 +23,7 @@ $column-height: calc(#{$board-content-height} - #{$gap + $gap});
         .card-ghost {
             transition: transform 0.18s ease;
             transform: rotateZ(5deg);
+            font-weight: bold;
         }
         .card-ghost-drop {
             transition: transform 0.18s ease-in-out;
@@ -36,7 +37,6 @@ $column-height: calc(#{$board-content-height} - #{$gap + $gap});
     }
     > * {
         background-color: $list_bg_color;
-        color: $text_color;
         padding: 0 8px;
     }
     header.column-drag-handle {
@@ -52,8 +52,16 @@ $column-height: calc(#{$board-content-height} - #{$gap + $gap});
         padding-left: 10px;
         height: $colums_footer_color;
         line-height: $colums_footer_color;
-        font-size: bold;
+        color: #888;
         border-bottom-left-radius: $border_radius;
         border-bottom-right-radius: $border_radius;
+        .footer-actions{
+            margin-left: $gap;
+            cursor: pointer;
+            &:hover{
+                color: $app-main-text-color;
+            }
+        }
+        
     }
 }
