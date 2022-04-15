@@ -13,7 +13,7 @@ const Listtrello = () => {
     const [board, setBoard] = useState({})
     const [columns, setColumns] = useState([])
     const newColumnInputRef = useRef(null)
-    const [newColumnTitle, setNewColumnTitle ] = useState('')
+    const [newColumnTitle, setNewColumnTitle] = useState('')
     const OnNewColumnTitleChange = useCallback((e) => setNewColumnTitle(e.target.value), [])
     useEffect(() => {
         const boardFromDB = initialData.boards.find(board => board.id === 'board-1')
@@ -73,7 +73,7 @@ const Listtrello = () => {
         }
         const newColumnToAdd = {
             id: Math.random().toString(36).substr(2, 5), // 5 random characters, will remove when we implement code api
-            boardId:board.id,
+            boardId: board.id,
             title: newColumnTitle.trim(),
             cardOrder: [],
             cards: []
@@ -90,14 +90,26 @@ const Listtrello = () => {
         setColumns(newColumns)
         setNewColumnTitle('')
         toggleOpenNewColumnForm()
-
-
-        // console.log(newColumnTitle)
     }
-    // const newColumnTitle = () => {
+    const onUpdateColumn = (newColumnToUpdate) => {
+        const columnIdToUpdate = newColumnToUpdate.id
+        let newColumns = [...columns]
+        const columnIndexToUpdate = newColumns.findIndex(i => i.id === columnIdToUpdate)
+        if (newColumnToUpdate._destroy) {
+            //remove column
+            newColumns.splice(columnIndexToUpdate, 1)
+        } else {
+            //update column information
+            newColumns.splice(columnIndexToUpdate, 1, newColumnToUpdate)
+        }
+        let newBoard = { ...board }
+        newBoard.columnOrder = newColumns.map(c => c.id)
+        newBoard.columns = newColumns
 
-    // }
-    
+        setBoard(newBoard)
+        setColumns(newColumns)
+    }
+
 
     return (
         <nav className="board-columns">
@@ -114,7 +126,7 @@ const Listtrello = () => {
             >
                 {columns.map((column, index) =>
                     <Draggable key={index}>
-                        <Column column={column} onCardDrop={onCardDrop} />
+                        <Column column={column} onCardDrop={onCardDrop} onUpdateColumn={onUpdateColumn} />
                     </Draggable>
                 )}
 
