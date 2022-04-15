@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import 'Style/ListTrello.scss'
 import { initialData } from 'actions/initialData'
 import Column from 'Component/Column/Column'
@@ -9,12 +9,18 @@ import { Container, Draggable } from 'react-smooth-dnd'
 import { Container as BootstrapContainer, Row, Col, Form, Button } from 'react-bootstrap'
 
 const Listtrello = () => {
-    const [openNewColumnForm, setOpenNewColumnForm] = useState(false)
     const [board, setBoard] = useState({})
     const [columns, setColumns] = useState([])
+
+    const [openNewColumnForm, setOpenNewColumnForm] = useState(false)
+    const toggleOpenNewColumnForm = () => {
+        setOpenNewColumnForm(!openNewColumnForm)
+    }
     const newColumnInputRef = useRef(null)
+
     const [newColumnTitle, setNewColumnTitle] = useState('')
-    const OnNewColumnTitleChange = useCallback((e) => setNewColumnTitle(e.target.value), [])
+    const OnNewColumnTitleChange = (e) => setNewColumnTitle(e.target.value)
+
     useEffect(() => {
         const boardFromDB = initialData.boards.find(board => board.id === 'board-1')
         if (boardFromDB) {
@@ -63,9 +69,7 @@ const Listtrello = () => {
             // console.log(dropResult)
         }
     }
-    const toggleOpenNewColumnForm = () => {
-        setOpenNewColumnForm(!openNewColumnForm)
-    }
+
     const addNewColumn = () => {
         if (!newColumnTitle) {
             newColumnInputRef.current.focus()
@@ -126,7 +130,11 @@ const Listtrello = () => {
             >
                 {columns.map((column, index) =>
                     <Draggable key={index}>
-                        <Column column={column} onCardDrop={onCardDrop} onUpdateColumn={onUpdateColumn} />
+                        <Column
+                            column={column}
+                            onCardDrop={onCardDrop}
+                            onUpdateColumn={onUpdateColumn}
+                        />
                     </Draggable>
                 )}
 
@@ -160,7 +168,7 @@ const Listtrello = () => {
                                 <Button variant="success" size="sm" onClick={addNewColumn}>
                                     Add column
                                 </Button>
-                                <span className="cancel-new-column" onClick={toggleOpenNewColumnForm}>
+                                <span className="cancel-icon" onClick={toggleOpenNewColumnForm}>
                                     <i className="fa fa-trash icon" />
                                 </span>
                             </Col>
