@@ -34,6 +34,12 @@ $column-height: calc(#{$board-content-height} - #{$gap + $gap});
             border: 1px dashed #abc;
             margin: 5px;
         }
+        .add-new-card-area{
+            .textarea-enter-new-card{
+                min-height: 54px;
+                max-height: 162px;
+            }
+        }
     }
     > * {
         background-color: $list_bg_color;
