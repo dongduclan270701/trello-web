@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import 'Style/Card.scss'
-class Task extends Component {
+class Card extends Component {
     render() {
         const { card } = this.props
         return (
@@ -12,4 +12,4 @@ class Task extends Component {
     }
 }
 
-export default Task
+export default Card

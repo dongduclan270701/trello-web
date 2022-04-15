@@ -1,4 +1,4 @@
-@import '_setting.scss';
+@import "_setting.scss";
 $column-height: calc(#{$board-content-height} - #{$gap + $gap});
 .column {
     flex: 0 0 auto;
@@ -29,10 +29,10 @@ $column-height: calc(#{$board-content-height} - #{$gap + $gap});
             transition: transform 0.18s ease-in-out;
             transform: rotateZ(0deg);
         }
-        .column-drop-preview{
-            background-color: rgba(150,150,200,0.1);
+        .column-drop-preview {
+            background-color: rgba(150, 150, 200, 0.1);
             border: 1px dashed #abc;
-            margin:5px;
+            margin: 5px;
         }
     }
     > * {
@@ -40,13 +40,50 @@ $column-height: calc(#{$board-content-height} - #{$gap + $gap});
         padding: 0 8px;
     }
     header.column-drag-handle {
-        padding-left: 15px;
+        padding: 5px 8px;
         height: $colums_header_color;
         line-height: $colums_header_color;
         font-size: bold;
         border-top-left-radius: $border_radius;
         border-top-right-radius: $border_radius;
-        cursor: pointer
+        cursor: pointer;
+        display: flex;
+        .column-title {
+            flex: 90%;
+        }
+        .column-dropdown-actions {
+            display: flex;
+            flex: 10%;
+            button.dropdown-btn {
+                padding: 0 $gap;
+                font-size: 16px;
+                line-height: 16px;
+                font-weight: bold;
+                letter-spacing: 1px;
+                background-color: hsla(0, 0%, 100%, 0.00);
+                border-color: hsla(0, 0%, 100%, 0.00);
+                color: $text_color;
+                &:after {
+                    vertical-align: 1.36em;
+                    content: "...";
+                    border: none;
+                }
+                &:hover{
+                    background-color: rgba(252, 252, 252, 0);
+                }
+            }
+            .dropdown-menu{
+                padding:0;
+                min-width: 200px;
+                a.dropdown-item{
+                    padding: 0.1rem 1rem;
+                    font-size: 14px;
+                    &:not(:last-child){
+                        border-bottom: 1px solid hsla(0, 0%, 100%, 0.00);
+                    }
+                }
+            }
+        }
     }
     footer {
         padding-left: 10px;
@@ -55,13 +92,12 @@ $column-height: calc(#{$board-content-height} - #{$gap + $gap});
         color: #888;
         border-bottom-left-radius: $border_radius;
         border-bottom-right-radius: $border_radius;
-        .footer-actions{
+        .footer-actions {
             margin-left: $gap;
             cursor: pointer;
-            &:hover{
+            &:hover {
                 color: $app-main-text-color;
             }
         }
-        
     }
 }

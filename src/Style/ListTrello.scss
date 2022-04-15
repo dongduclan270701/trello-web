@@ -62,7 +62,10 @@
         }
         
         .input-enter-new-column {
-            margin: 5px 0;
+            margin: 5px 0;;
+            &:focus{
+                border-color: $input_border_color;
+            }
         }
         .cancel-new-column {
             margin-left: $gap;
