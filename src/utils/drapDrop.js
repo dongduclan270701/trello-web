@@ -1,3 +1,4 @@
+//Hàm kéo thả trong arr
 export const applyDrap = (arr, drapResult) => {
     const { removedIndex, addedIndex, payload } = drapResult
     if (removedIndex === null && addedIndex === null) return arr

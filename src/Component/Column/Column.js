@@ -1,41 +1,47 @@
 import React, { useState, useEffect, useRef } from 'react'
 import 'Style/Column.scss'
 import Card from 'Component/Card/Card'
-import { mapOrder } from 'utils/sorts'
-import { Container, Draggable } from 'react-smooth-dnd'
-import { Dropdown, Form, Button } from 'react-bootstrap'
+import { mapOrder } from 'utils/sorts' // Lấy hàm kéo thả
+import { Container, Draggable } from 'react-smooth-dnd' // Sử dụng thử viện kéo thả
+import { Dropdown, Form, Button } from 'react-bootstrap' // Sử dụng thư viện của react bootstrap
 import ConfirmModals from 'Component/Common/ConfirmModals'
 import { MODAL_ACTION_CONFIRM } from 'utils/constants'
-import { selectAllInlineText, saveContentAfterPressEnter } from 'utils/contentEditable'
-import { cloneDeep } from 'lodash'
+import { selectAllInlineText, saveContentAfterPressEnter } from 'utils/contentEditable' // Lấy hàm KeyDown
+import { cloneDeep } from 'lodash' // Lấy chức năng của thư viện lodash
 
 function Column(props) {
-    const { column, onCardDrop, onUpdateColumn } = props
-    const cards = mapOrder(column.cards, column.cardOrder, 'id')
+    const { column, onCardDrop, onUpdateColumn, onUpdateCard } = props //Nhận giá trị props từ component cha xuống component con
+    const cards = mapOrder(column.cards, column.cardOrder, '_id')
 
-    const [showConfirmModal, setShowConfirmModal] = useState(false)
-    const toggleShowConfirmModal = () => setShowConfirmModal(!showConfirmModal)
+    const [showConfirmModal, setShowConfirmModal] = useState(false) // Khởi tạo state
+    const toggleShowConfirmModal = () => setShowConfirmModal(!showConfirmModal) // Hàm đóng mở alert xác nhận
 
-    const [columnTitle, setColumnTitle] = useState('')
-    const HandleColumnTitleChange = (e) => setColumnTitle(e.target.value)
+    const [columnTitle, setColumnTitle] = useState('') // Khởi tạo state
+    const HandleColumnTitleChange = (e) => setColumnTitle(e.target.value) // Hàm thay đổi và set giá trị khi nhập giá trị tại thẻ
 
-    const [openNewCardForm, setOpenNewCardForm] = useState(false)
+    const [openNewCardForm, setOpenNewCardForm] = useState(false) // Khởi tạo state
+
+    //Hàm đóng mở form thêm card
     const toggleOpenNewCardForm = () => {
         setOpenNewCardForm(!openNewCardForm)
     }
 
     const newCardTextareaRef = useRef(null)
 
-    const [newCardTitle, setNewCardTitle] = useState('')
-    const OnNewCardTitleChange = (e) => setNewCardTitle(e.target.value)
+    const [newCardTitle, setNewCardTitle] = useState('') // Khởi tạo state
+    const OnNewCardTitleChange = (e) => setNewCardTitle(e.target.value) // Hàm thay đổi và set giá trị khi nhập giá trị tại thẻ
 
+    //Hàm quản lý và update vòng đời của component
     useEffect(() => {
         setColumnTitle(column.title)
     }, [column.title])
 
+    //Hàm quản lý và update vòng đời của component
     useEffect(() => {
         if (newCardTextareaRef && newCardTextareaRef.current) {
+            //Focus vào thẻ input
             newCardTextareaRef.current.focus()
+            //Chọn tất cả value tồn tại trong thẻ input
             newCardTextareaRef.current.select()
         }
     }, [openNewCardForm])
@@ -69,17 +75,14 @@ function Column(props) {
         const newCardToAdd = {
             id: Math.random().toString(36).substr(2, 5), // 5 random characters, will remove when we implement code api
             boardId: column.boardID,
-            columnId: column.id,
+            columnId: column._id,
             title: newCardTitle.trim(),
             cover: null
         }
 
-        let newColumn = cloneDeep(column)
+        let newColumn = cloneDeep(column) //cloneDeep để khi cập nhật lại value sẽ chỉ cập nhật value khi thực hiện, còn value trc vẫn giữ nguyên
         newColumn.cards.push(newCardToAdd)
-        newColumn.cardOrder.push(newCardToAdd.id)
-
-        // console.log(newColumn)
-
+        newColumn.cardOrder.push(newCardToAdd._id)
         onUpdateColumn(newColumn)
         setNewCardTitle('')
         toggleOpenNewCardForm()
@@ -95,8 +98,8 @@ function Column(props) {
                         className="trello-content-editable"
                         onChange={HandleColumnTitleChange}
                         onBlur={HandleColumnTitleBlur}
-                        onKeyDown={saveContentAfterPressEnter}
-                        onMouseDown={e => e.preventDefault()}
+                        onKeyDown={saveContentAfterPressEnter} //Sử dụng hàm keydown
+                        onMouseDown={e => e.preventDefault()} //Khi kéo thay đổi column sẽ bỏ qua việc input value
                         value={columnTitle}
                         spellCheck="false"
                         onClick={selectAllInlineText}
@@ -117,7 +120,7 @@ function Column(props) {
             <div className='card-list'>
                 <Container
                     groupName='col'
-                    onDrop={dropResult => onCardDrop(column.id, dropResult)}
+                    onDrop={dropResult => onCardDrop(column._id, dropResult)}
                     getChildPayload={index => cards[index]}
                     dropPlaceholder={{
                         animationDuration: 150,
@@ -131,7 +134,7 @@ function Column(props) {
                 >
                     {cards.map((card, index) => (
                         <Draggable key={index}>
-                            <Card card={card} />
+                            <Card card={card} onUpdateCard={onUpdateCard} />
                         </Draggable>
                     )
                     )}
@@ -154,7 +157,7 @@ function Column(props) {
                 }
             </div>
             <footer>
-                {openNewCardForm &&
+                {openNewCardForm ?
                     <div className="add-new-card-actions">
                         <Button variant="success" size="sm" onClick={addNewCard}>
                             Add Card
@@ -163,8 +166,7 @@ function Column(props) {
                             <i className="fa fa-trash icon" />
                         </span>
                     </div>
-                }
-                {!openNewCardForm &&
+                    :
                     <div className="footer-actions" onClick={toggleOpenNewCardForm}>
                         <i className="fa fa-plus icon" /> Add another card
                     </div>
