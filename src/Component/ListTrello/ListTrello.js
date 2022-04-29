@@ -1,72 +1,99 @@
 import React, { useState, useEffect, useRef } from 'react'
 import 'Style/ListTrello.scss'
-import { initialData } from 'actions/initialData'
+// import { initialData } from 'actions/initialData' // Lấy fake data
 import Column from 'Component/Column/Column'
-import { isEmpty } from 'lodash'
-import { mapOrder } from 'utils/sorts'
-import { applyDrap } from 'utils/drapDrop'
-import { Container, Draggable } from 'react-smooth-dnd'
-import { Container as BootstrapContainer, Row, Col, Form, Button } from 'react-bootstrap'
+import { isEmpty } from 'lodash' // Check empty sử dụng thư viện lodash
+import { mapOrder } from 'utils/sorts' // Lấy hàm sắp xếp ký tự
+import { applyDrap } from 'utils/drapDrop' // Lấy hàm kéo thả
+import { Container, Draggable } from 'react-smooth-dnd' // Sử dụng thử viện kéo thả
+import { Container as BootstrapContainer, Row, Col, Form, Button } from 'react-bootstrap' // Sử dụng thư viện của react bootstrap
+import { toast } from 'react-toastify'
+import { fetchBoardDetails } from 'actions/ApiCall'
 
 const Listtrello = () => {
-    const [board, setBoard] = useState({})
-    const [columns, setColumns] = useState([])
+    const [board, setBoard] = useState({}) // Khởi tạo state
+    const [columns, setColumns] = useState([]) // Khởi tạo state
+    const [openNewColumnForm, setOpenNewColumnForm] = useState(false) // Khởi tạo state
+    //test card
+    const [cards, setCards] = useState([])
 
-    const [openNewColumnForm, setOpenNewColumnForm] = useState(false)
+    // console.log(cards)
+    //Hàm đóng mở form thêm column
     const toggleOpenNewColumnForm = () => {
         setOpenNewColumnForm(!openNewColumnForm)
     }
     const newColumnInputRef = useRef(null)
 
-    const [newColumnTitle, setNewColumnTitle] = useState('')
+    const [newColumnTitle, setNewColumnTitle] = useState('') // Khởi tạo state
     const OnNewColumnTitleChange = (e) => setNewColumnTitle(e.target.value)
 
+    //Hàm quản lý và update vòng đời của component
     useEffect(() => {
-        const boardFromDB = initialData.boards.find(board => board.id === 'board-1')
-        if (boardFromDB) {
-            setBoard(boardFromDB)
+        //Tìm fake data
+        // const boardFromDB = initialData.boards.find(board => board.id === 'board-1')
+        const boardId = '626aae8d9809f2417bed8298'
+        fetchBoardDetails(boardId)
+            .then(board => {
+                setBoard(board)
 
-            //sort column
+                //sort column and set state cho column
+                setColumns(mapOrder(board.columns, board.columnOrder, '_id'))
+            })
+            .catch(err => {
+                console.error(err)
+            })
 
-            setColumns(mapOrder(boardFromDB.columns, boardFromDB.columnOrder, 'id'))
-        }
+        // Check tìm Fake data
+        // if (boardFromDB) {
+        //     // Set state cho board
+        //     setBoard(boardFromDB)
+
+        //     //sort column and set state cho column
+        //     setColumns(mapOrder(boardFromDB.columns, boardFromDB.columnOrder, 'id'))
+        // }
     }, [])
 
+    //Hàm quản lý và update vòng đời của component
     useEffect(() => {
         if (newColumnInputRef && newColumnInputRef.current) {
+            //Focus vào thẻ input
             newColumnInputRef.current.focus()
+            //Chọn tất cả value tồn tại trong thẻ input
             newColumnInputRef.current.select()
         }
-    }, [openNewColumnForm])
+    }, [openNewColumnForm]) //Truyền tham số điều kiện khi thực hiện chức năng trong component
 
+    // Check có tồn tại fake data khi set ở trong effect hay ko
     if (isEmpty(board)) {
         return <div className="not-found">Board not Found!!</div>
     }
+
+    // Hàm kéo column và lấy vị trí column đó và set lại state
     const onColumnDrop = (dropResult) => {
-        // console.log(dropResult)
+
         let newColumns = [...columns]
         newColumns = applyDrap(newColumns, dropResult)
 
         let newBoard = { ...board }
-        newBoard.columnOrder = newColumns.map(c => c.id)
+        newBoard.columnOrder = newColumns.map(c => c._id)
         newBoard.columns = newColumns
 
         setBoard(newBoard)
         setColumns(newColumns)
     }
 
+    // Hàm kéo card và lấy vị trí card đó và set lại state
     const onCardDrop = (columnId, dropResult) => {
         if (dropResult.removedIndex !== null || dropResult.addedIndex !== null) {
             let newColumns = [...columns]
-            let currentColumn = newColumns.find(c => c.id === columnId)
+            let currentColumn = newColumns.find(c => c._id === columnId)
 
             currentColumn.cards = applyDrap(currentColumn.cards, dropResult)
 
-            currentColumn.cardOrder = currentColumn.cards.map(i => i.id)
+            currentColumn.cardOrder = currentColumn.cards.map(i => i._id)
 
             setColumns(newColumns)
-            // console.log(currentColumn.cardOrder)
-            // console.log(dropResult)
+            // console.log(dropResult.payload)
         }
     }
 
@@ -77,7 +104,7 @@ const Listtrello = () => {
         }
         const newColumnToAdd = {
             id: Math.random().toString(36).substr(2, 5), // 5 random characters, will remove when we implement code api
-            boardId: board.id,
+            boardId: board._id,
             title: newColumnTitle.trim(),
             cardOrder: [],
             cards: []
@@ -87,35 +114,97 @@ const Listtrello = () => {
         newColumns.push(newColumnToAdd)
 
         let newBoard = { ...board }
-        newBoard.columnOrder = newColumns.map(c => c.id)
+        newBoard.columnOrder = newColumns.map(c => c._id)
         newBoard.columns = newColumns
 
         setBoard(newBoard)
         setColumns(newColumns)
         setNewColumnTitle('')
         toggleOpenNewColumnForm()
+        toast('🦄 Wow so easy!', {
+            position: 'top-right',
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined
+        })
     }
     const onUpdateColumn = (newColumnToUpdate) => {
-        const columnIdToUpdate = newColumnToUpdate.id
+        const columnIdToUpdate = newColumnToUpdate._id
         let newColumns = [...columns]
-        const columnIndexToUpdate = newColumns.findIndex(i => i.id === columnIdToUpdate)
+        const columnIndexToUpdate = newColumns.findIndex(i => i._id === columnIdToUpdate)
         if (newColumnToUpdate._destroy) {
             //remove column
             newColumns.splice(columnIndexToUpdate, 1)
+            toast('🦄 Delete Successfully!', {
+                position: 'top-right',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
         } else {
             //update column information
             newColumns.splice(columnIndexToUpdate, 1, newColumnToUpdate)
+            toast('🦄 Update Successfully!', {
+                position: 'top-right',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
         }
         let newBoard = { ...board }
-        newBoard.columnOrder = newColumns.map(c => c.id)
+        newBoard.columnOrder = newColumns.map(c => c._id)
         newBoard.columns = newColumns
-
+        // console.log(newColumns)
         setBoard(newBoard)
         setColumns(newColumns)
+        
     }
 
+    const onUpdateCard = (dataCard) => {
+
+        const cardColumnsIdToUpdate = dataCard.columnId
+        const cardIdToUpdate = dataCard._id
+        let newBoard = { ...board }
+        let getCardOrder = newBoard.columns.find(id => id._id === cardColumnsIdToUpdate)
+
+        setCards(getCardOrder.cards)
+        let newCards = [...cards]
+        const cardIndexToUpdate = newCards.findIndex(i => i._id === cardIdToUpdate)
+        let newColumns = [...columns]
+        if (cardIndexToUpdate !== -1) {
+            newCards.splice(cardIndexToUpdate, 1, dataCard)
+            newBoard.columns = newColumns
+            const cardNew = newBoard.columns.find(i => i._id === cardColumnsIdToUpdate)
+            cardNew.cards = newCards
+        } else {
+            return
+        }
+        // newBoard.columnOrder = newColumns.map(c => c.id)
+        toast('🦄 Wow so easy!', {
+            position: 'top-right',
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined
+        })
+        setColumns(newColumns)
+
+
+    }
 
     return (
+
         <nav className="board-columns">
             <Container
                 onDrop={onColumnDrop}
@@ -134,6 +223,7 @@ const Listtrello = () => {
                             column={column}
                             onCardDrop={onCardDrop}
                             onUpdateColumn={onUpdateColumn}
+                            onUpdateCard={onUpdateCard}
                         />
                     </Draggable>
                 )}

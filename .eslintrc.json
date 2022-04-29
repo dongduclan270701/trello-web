@@ -22,7 +22,7 @@
     "rules": {
         "react-hooks/rules-of-hooks": "error",
         "react-hooks/exhaustive-deps": "warn",
-        "no-console": 1,
+        "no-console": 0,
         "no-unused-vars": 1,
         "no-multi-spaces": 1,
         "no-multiple-empty-lines": 1,
