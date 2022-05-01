@@ -8,7 +8,7 @@ import { applyDrap } from 'utils/drapDrop' // Lấy hàm kéo thả
 import { Container, Draggable } from 'react-smooth-dnd' // Sử dụng thử viện kéo thả
 import { Container as BootstrapContainer, Row, Col, Form, Button } from 'react-bootstrap' // Sử dụng thư viện của react bootstrap
 import { toast } from 'react-toastify'
-import { fetchBoardDetails } from 'actions/ApiCall'
+import { fetchBoardDetails, createNewColumn } from 'actions/ApiCall'
 
 const Listtrello = () => {
     const [board, setBoard] = useState({}) // Khởi tạo state
@@ -103,35 +103,37 @@ const Listtrello = () => {
             return
         }
         const newColumnToAdd = {
-            id: Math.random().toString(36).substr(2, 5), // 5 random characters, will remove when we implement code api
+            // id: Math.random().toString(36).substr(2, 5), // 5 random characters, will remove when we implement code api
             boardId: board._id,
-            title: newColumnTitle.trim(),
-            cardOrder: [],
-            cards: []
+            title: newColumnTitle.trim()
         }
+        createNewColumn(newColumnToAdd)
+            .then(column => {
+                let newColumns = [...columns]
+                newColumns.push(column)
 
-        let newColumns = [...columns]
-        newColumns.push(newColumnToAdd)
+                let newBoard = { ...board }
+                newBoard.columnOrder = newColumns.map(c => c._id)
+                newBoard.columns = newColumns
 
-        let newBoard = { ...board }
-        newBoard.columnOrder = newColumns.map(c => c._id)
-        newBoard.columns = newColumns
+                setBoard(newBoard)
+                setColumns(newColumns)
+                setNewColumnTitle('')
+                toggleOpenNewColumnForm()
+                toast('🦄 Wow so easy!', {
+                    position: 'top-right',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+            })
 
-        setBoard(newBoard)
-        setColumns(newColumns)
-        setNewColumnTitle('')
-        toggleOpenNewColumnForm()
-        toast('🦄 Wow so easy!', {
-            position: 'top-right',
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined
-        })
+
     }
-    const onUpdateColumn = (newColumnToUpdate) => {
+    const onUpdateColumnState = (newColumnToUpdate) => {
         const columnIdToUpdate = newColumnToUpdate._id
         let newColumns = [...columns]
         const columnIndexToUpdate = newColumns.findIndex(i => i._id === columnIdToUpdate)
@@ -166,7 +168,7 @@ const Listtrello = () => {
         // console.log(newColumns)
         setBoard(newBoard)
         setColumns(newColumns)
-        
+
     }
 
     const onUpdateCard = (dataCard) => {
@@ -222,7 +224,7 @@ const Listtrello = () => {
                         <Column
                             column={column}
                             onCardDrop={onCardDrop}
-                            onUpdateColumn={onUpdateColumn}
+                            onUpdateColumnState={onUpdateColumnState}
                             onUpdateCard={onUpdateCard}
                         />
                     </Draggable>

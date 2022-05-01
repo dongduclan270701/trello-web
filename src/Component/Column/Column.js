@@ -8,9 +8,10 @@ import ConfirmModals from 'Component/Common/ConfirmModals'
 import { MODAL_ACTION_CONFIRM } from 'utils/constants'
 import { selectAllInlineText, saveContentAfterPressEnter } from 'utils/contentEditable' // Lấy hàm KeyDown
 import { cloneDeep } from 'lodash' // Lấy chức năng của thư viện lodash
+import { createNewCards, updateColumn } from 'actions/ApiCall'
 
 function Column(props) {
-    const { column, onCardDrop, onUpdateColumn, onUpdateCard } = props //Nhận giá trị props từ component cha xuống component con
+    const { column, onCardDrop, onUpdateColumnState, onUpdateCard } = props //Nhận giá trị props từ component cha xuống component con
     const cards = mapOrder(column.cards, column.cardOrder, '_id')
 
     const [showConfirmModal, setShowConfirmModal] = useState(false) // Khởi tạo state
@@ -53,17 +54,30 @@ function Column(props) {
                 ...column,
                 _destroy: true
             }
-            onUpdateColumn(newColumn)
+            updateColumn(newColumn._id, newColumn)
+                .then(updatedColumn => {
+                    onUpdateColumnState(updatedColumn)
+                })
         }
         toggleShowConfirmModal()
     }
 
     const HandleColumnTitleBlur = () => {
-        const newColumn = {
-            ...column,
-            title: columnTitle
+        
+        if (columnTitle !== column.title) {
+            const newColumn = {
+                ...column,
+                title: columnTitle
+            }
+            console.log(columnTitle)
+            console.log(column.title)
+            updateColumn(newColumn._id, newColumn)
+                .then(updatedColumn => {
+                    updatedColumn.cards = newColumn.cards
+                    onUpdateColumnState(updatedColumn)
+                })
         }
-        onUpdateColumn(newColumn)
+
     }
 
     const addNewCard = () => {
@@ -73,19 +87,20 @@ function Column(props) {
         }
 
         const newCardToAdd = {
-            id: Math.random().toString(36).substr(2, 5), // 5 random characters, will remove when we implement code api
-            boardId: column.boardID,
+            // id: Math.random().toString(36).substr(2, 5), // 5 random characters, will remove when we implement code api
+            boardId: column.boardId,
             columnId: column._id,
-            title: newCardTitle.trim(),
-            cover: null
+            title: newCardTitle.trim()
         }
-
-        let newColumn = cloneDeep(column) //cloneDeep để khi cập nhật lại value sẽ chỉ cập nhật value khi thực hiện, còn value trc vẫn giữ nguyên
-        newColumn.cards.push(newCardToAdd)
-        newColumn.cardOrder.push(newCardToAdd._id)
-        onUpdateColumn(newColumn)
-        setNewCardTitle('')
-        toggleOpenNewCardForm()
+        createNewCards(newCardToAdd)
+            .then(card => {
+                let newColumn = cloneDeep(column) //cloneDeep để khi cập nhật lại value sẽ chỉ cập nhật value khi thực hiện, còn value trc vẫn giữ nguyên
+                newColumn.cards.push(card)
+                newColumn.cardOrder.push(card._id)
+                onUpdateColumnState(newColumn)
+                setNewCardTitle('')
+                toggleOpenNewCardForm()
+            })
     }
 
     return (
