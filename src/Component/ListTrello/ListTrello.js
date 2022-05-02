@@ -2,13 +2,13 @@ import React, { useState, useEffect, useRef } from 'react'
 import 'Style/ListTrello.scss'
 // import { initialData } from 'actions/initialData' // Lấy fake data
 import Column from 'Component/Column/Column'
-import { isEmpty } from 'lodash' // Check empty sử dụng thư viện lodash
+import { isEmpty, cloneDeep } from 'lodash' // Check empty sử dụng thư viện lodash
 import { mapOrder } from 'utils/sorts' // Lấy hàm sắp xếp ký tự
 import { applyDrap } from 'utils/drapDrop' // Lấy hàm kéo thả
 import { Container, Draggable } from 'react-smooth-dnd' // Sử dụng thử viện kéo thả
 import { Container as BootstrapContainer, Row, Col, Form, Button } from 'react-bootstrap' // Sử dụng thư viện của react bootstrap
 import { toast } from 'react-toastify'
-import { fetchBoardDetails, createNewColumn } from 'actions/ApiCall'
+import { fetchBoardDetails, createNewColumn, updateBoard, updateColumn, updateCard } from 'actions/ApiCall'
 
 const Listtrello = () => {
     const [board, setBoard] = useState({}) // Khởi tạo state
@@ -71,29 +71,52 @@ const Listtrello = () => {
     // Hàm kéo column và lấy vị trí column đó và set lại state
     const onColumnDrop = (dropResult) => {
 
-        let newColumns = [...columns]
+        let newColumns = cloneDeep(columns)
         newColumns = applyDrap(newColumns, dropResult)
 
-        let newBoard = { ...board }
+        let newBoard = cloneDeep(board)
         newBoard.columnOrder = newColumns.map(c => c._id)
         newBoard.columns = newColumns
-
         setBoard(newBoard)
         setColumns(newColumns)
+        updateBoard(newBoard._id, newBoard)
+            .catch(() => {
+                setBoard(board)
+                setColumns(columns)
+            })
+
     }
 
     // Hàm kéo card và lấy vị trí card đó và set lại state
     const onCardDrop = (columnId, dropResult) => {
+        // if (dropResult.removedIndex !== null || dropResult.addedIndex !== null) {
+        //     let newColumns = [...columns]
+        //     let currentColumn = newColumns.find(c => c._id === columnId)
+
+        //     currentColumn.cards = applyDrap(currentColumn.cards, dropResult)
+
+        //     currentColumn.cardOrder = currentColumn.cards.map(i => i._id)
+
+        //     setColumns(newColumns)
+        //     // console.log(dropResult.payload)
+        // }
         if (dropResult.removedIndex !== null || dropResult.addedIndex !== null) {
             let newColumns = [...columns]
             let currentColumn = newColumns.find(c => c._id === columnId)
-
             currentColumn.cards = applyDrap(currentColumn.cards, dropResult)
-
             currentColumn.cardOrder = currentColumn.cards.map(i => i._id)
-
             setColumns(newColumns)
-            // console.log(dropResult.payload)
+            if (dropResult.removedIndex !== null && dropResult.addedIndex !== null) {
+
+                updateColumn(currentColumn._id, currentColumn).catch(() => setColumns(newColumns))
+            } else {
+                updateColumn(currentColumn._id, currentColumn).catch(() => setColumns(newColumns))
+                if (dropResult.addedIndex !== null) {
+                    let currentCard = cloneDeep(dropResult.payload)
+                    currentCard.columnId = currentColumn._id
+                    updateCard(currentCard._id, currentCard)
+                }
+            }
         }
     }
 
