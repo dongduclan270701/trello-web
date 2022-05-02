@@ -1,6 +1,11 @@
 import axios from 'axios'
 import { API_ROOT } from 'utils/constants'
 
+export const updateBoard = async (id, data) => {
+    const req = await axios.put(`${API_ROOT}/v1/boards/${id}`, data)
+    return req.data
+}
+
 export const fetchBoardDetails = async (id) => {
     const req = await axios.get(`${API_ROOT}/v1/boards/${id}`)
     return req.data
@@ -13,6 +18,11 @@ export const createNewColumn = async (data) => {
 
 export const updateColumn = async (id, data) => {
     const req = await axios.put(`${API_ROOT}/v1/columns/${id}`, data)
+    return req.data
+}
+
+export const updateCard = async (id, data) => {
+    const req = await axios.put(`${API_ROOT}/v1/cards/${id}`, data)
     return req.data
 }
 
